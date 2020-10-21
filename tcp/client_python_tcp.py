@@ -9,6 +9,7 @@ import sys
 
 # Establish a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # AF_INET for ipv4 address family, SOCK_STREAM means TCP protocol
+s.settimeout(0.5)   # Set time out for socket to 500 ms
 
 # # Get user input for parameters
 # host = input("Enter sever name or IP address: ")
@@ -42,6 +43,9 @@ dataFromServer = s.recv(1024)
 f = open("client_tcp_stdout.txt", "w")
 f.write( dataFromServer.decode() )
 f.close()
+
+# Print file saved
+print("File ", "client_tcp_stdout.txt", " saved")
 
 # Close the connection
 s.close()

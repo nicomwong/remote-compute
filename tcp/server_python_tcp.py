@@ -8,13 +8,17 @@ import socket
 import sys
 import subprocess
 
-# Create the socket
-s = socket.socket()
+if ( len(sys.argv) != 2):
+    print("Usage: python server_python_tcp.py <port>")
+    sys.exit()
 
 # Set the port
 port = int(sys.argv[1])
 if not(0 <= port <= 65535):
     print("Invalid port number")
+
+# Create the socket
+s = socket.socket()
 
 # Bind to this machine with the port
 s.bind( ('', port) )
@@ -40,7 +44,7 @@ while True:
     f.close()
 
     # Send the file contents back to the client
-    f = open("stdoutOnServer.txt", "r")
+    f = open("server_tcp_stdout.txt", "r")
     c.send( f.read().encode() )
     f.close()
 
