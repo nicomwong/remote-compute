@@ -8,6 +8,7 @@ import socket
 import sys
 import subprocess
 
+# Check for valid cmd line input
 if ( len(sys.argv) != 2):
     print("Usage: python server_python_tcp.py <port>")
     sys.exit()
@@ -26,27 +27,33 @@ s.bind( ('', port) )
 # Put the socket into listening mode
 s.listen(5)
 
-# Infinite loop to wait for client connection
+# Loop to wait for connections
 while True:
-    
+
     # Wait until a connection is received (blocking)
     c, addr = s.accept()
 
-    # Receive the data sent
-    commandFromClient = c.recv(1024)
+    # Try to receive the command
+    try:
+        commandFromClient = c.recv(1024)
+    # If it times out, print an error and ditch the message
+    except socket.timeout:
+        print("Failed to receive instructions from the client.")
+        break
+    # Else, process the received commandFromClient
+    else:
+        # Run the command on the shell from server and store the output
+        stdout = subprocess.check_output( commandFromClient.decode(), shell=True )
 
-    # Run the command on the shell from server and store the output
-    stdout = subprocess.check_output( commandFromClient.decode(), shell=True )
+        # Put the output into a file
+        f = open("server_tcp_stdout.txt", "w")
+        f.write( stdout.decode() )
+        f.close()
 
-    # Put the output into a file
-    f = open("server_tcp_stdout.txt", "w")
-    f.write( stdout.decode() )
-    f.close()
+        # Send the file contents back to the client
+        f = open("server_tcp_stdout.txt", "r")
+        c.send( f.read().encode() )
+        f.close()
 
-    # Send the file contents back to the client
-    f = open("server_tcp_stdout.txt", "r")
-    c.send( f.read().encode() )
-    f.close()
-
-    # Close the connection
-    c.close()
+        # Close the connection
+        c.close()
