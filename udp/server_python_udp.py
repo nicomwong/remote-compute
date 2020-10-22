@@ -26,22 +26,45 @@ s.bind( ('', port) )
 
 # Infinite loop to wait for client connection
 while True:
-    
+
     # Set socket to blocking
     s.setblocking(True)
     
+    # Wait to receive a command length from client
+    cmdLength, addr = s.recvfrom(1024)
+
+    # Set socket timeout to 500 ms
+    s.settimeout(0.5)
+
     # Wait to receive command from client
-    commandFromClient, addr = s.recvfrom(1024)
+    try:
+        cmdFromClient, addr = s.recvfrom(1024)
+    # If it times out, print an error and ditch the message
+    except socket.timeout:
+        print("Failed to receive instructions from the client.")
+        continue
+    # Else,
+    else:
+        # If the command is of the correct length, then respond with an ACK
+        if len(cmdFromClient) == int( cmdLength.decode() ):
+            s.sendto("ACK".encode(), addr)
+        # Else, print an error and ditch the message
+        else:
+            print("Failed to receive instructions from the client.")
+            continue
 
     # Run the command on the shell from server and store the output
-    stdout = subprocess.check_output( commandFromClient.decode(), shell=True )
+    stdout = subprocess.check_output( cmdFromClient.decode(), shell=True )
 
     # Put the output into a file
-    # f = open("server_udp_stdout.txt", "w")
-    # f.write( stdout.decode() )
-    # f.close()
+    f = open("server_udp_stdout.txt", "w")
+    f.write( stdout.decode() )
+    f.close()
 
-    timesSent = 0   # Track the number of times the message has been sent
+    # Track the number of times the message has been sent
+    timesSent = 0
+
+    # Repeat a maximum of 3 times
     while timesSent < 3:
 
         # Send the message length to the client
@@ -50,7 +73,7 @@ while True:
         # Send the command output to the client
         s.sendto(stdout, addr)
 
-        # Set timeout to 1 second
+        # Set timeout to 1 second for ACK to be received
         s.settimeout(1)
         
         # Wait for ACK to be received
