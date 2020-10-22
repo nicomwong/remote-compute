@@ -20,26 +20,28 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)   # AF_INET for ipv4 addres
 
 # serverAddr = (host, port)
 
-
 # FORCED FOR TESTING
+fileName = "client_udp_stdout.txt"
 host = "localhost"
 port = 12345
 command = "echo hello server"
 
 serverAddr = (host, port)
 
-# Send length of command to the server
+# Track the number of times this message was resent
+sentCount = 0
 
-ackNotReceived = True
-timeoutCount = 0
-
-while (ackNotReceived and timeoutCount < 3):
+# Repeat sending command length and command a maximum of 3 times
+while (sentCount < 3):
 
     # Send the command length to the server
     s.sendto( str( len(command) ).encode(), serverAddr)
 
     # Send the command to the server
     s.sendto(command.encode(), serverAddr)
+
+    # Print
+    print("Sent command length and command to server")
 
     # Set socket timeout to 1 s
     s.settimeout(1)
@@ -49,66 +51,62 @@ while (ackNotReceived and timeoutCount < 3):
         ack, addr = s.recvfrom(1024)
     # If it times out, resend length and command
     except socket.timeout:
-        timeoutCount += 1
+        sentCount += 1
         continue
-    # Else, if the message is ACK, then set ack to received
+    # Else, check if ACK was received
     else:
+        # If ACK was received, then print that and set ack to received
         if ack.decode() == "ACK":
-            ackNotReceived = False
-        
+            print("ACK received")
+            break
+        # Else, resend length and command
+        else:
+            sentCount += 1
+            continue
+            
 # If timeoutCount reached 3, then print failure and terminate
-if timeoutCount >= 3:
+if sentCount >= 3:
     print("Failed to send command. Terminating.")
     sys.exit()
 
-# If ACK was received, then print that
-if ackNotReceived == False:
-    print("received ACK")
+# Set socket to blocking
+s.setblocking(True)
 
-# Try to receive the message length
-try:
-    # Receive the expected message length from the server
-    data, addr = s.recvfrom(1024)
-    expectedLength = int( data.decode() )
-    print("Expected length =", expectedLength)
+# Wait to receive the expected message length from the server
+data, addr = s.recvfrom(1024)
+expectedLength = int( data.decode() )
+print("Expected length is", expectedLength)
 
-# If it times out, print an error and stop
-except socket.timeout:
-    print("Failed to receive command output from server in time")
-    sys.exit()
-
-# At this point, the length message has been received
-
-# Repeat while there are more chunks to be received
+# Repeat while there are more packets to be received
 while expectedLength > 0:
 
-    # Try to receive the next 1024-byte chunk
+    # Set socket timeout to 500 ms
+    s.settimeout(0.5)
+    
+    # Try to receive the next 1024-byte packet
     try:
-        chunkFromServer, addr = s.recvfrom(1024)
-
+        packetFromServer, addr = s.recvfrom(1024)
     # If it times out, print an error and stop
     except socket.timeout:
-        print("Failed to receive command output from server in time")
+        print("Failed to receive command output from server")
         sys.exit()
-
-    # Else, process the chunk
+    # Else, append the packet to the file
     else:
-        # Print chunk received
-        print("Chunk of size ", len(chunkFromServer), " received")
-        print(chunkFromServer)
+        # Print packet received
+        print("Packet of size", len(packetFromServer), "received")
+        print(packetFromServer)
 
-        # Store its contents in a file
-        f = open("client_udp_stdout.txt", "w")
-        f.write( chunkFromServer.decode() )
+        # Append this packet's contents to the file
+        f = open(fileName, "a")
+        f.write( packetFromServer.decode() )
         f.close()
 
+        # Send an ACK to the server that this packet was received
+        print("Sending ACK")
+        s.sendto("ACK".encode(), addr)
+
         # Update the remaining expected length to be received
-        expectedLength -= len(chunkFromServer)
+        expectedLength -= len(packetFromServer)
 
-# At this point, all expectedLength bytes have been received, so send an ACK
-
-# Print sending ACK
-print("Sending ACK to server")
-
-# Send ACK back to server
-s.sendto("ACK".encode(), serverAddr)
+# At this point, all packets should have been received and stored, so print success
+print("File", fileName, "saved")
