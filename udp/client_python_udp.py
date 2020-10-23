@@ -24,7 +24,7 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)   # AF_INET for ipv4 addres
 fileName = "client_udp_stdout.txt"
 host = "localhost"
 port = 12345
-command = "echo hello server"
+command = "echo hello server aaaaa bbbbb cccccc dddd"
 
 serverAddr = (host, port)
 
@@ -67,6 +67,7 @@ while (sentCount < 4):
 # If timeoutCount reached 3, then print failure and terminate
 if sentCount >= 4:
     print("Failed to send command. Terminating.")
+    s.close()
     sys.exit()
 
 # Set socket to blocking
@@ -76,6 +77,11 @@ s.setblocking(True)
 data, addr = s.recvfrom(1024)
 expectedLength = int( data.decode() )
 print("Expected length is", expectedLength)
+
+# Empty the file contents
+f = open(fileName, "w")
+f.write("")
+f.close()
 
 # Store currently received message length
 currLength = 0
@@ -92,6 +98,7 @@ while currLength < expectedLength:
     # If it times out, print an error and stop
     except socket.timeout:
         print("Failed to receive command output from server")
+        s.close()
         sys.exit()
     # Else, append the packet to the file
     else:
@@ -115,7 +122,9 @@ while currLength < expectedLength:
 if not(currLength == expectedLength):
     print("Failed to receive command output from server.")
     print("Expected", expectedLength, "bytes. Received", currLength, "bytes")
+    s.close()
     sys.exit()
 
 # At this point, all packets should have been received and stored, so print success
 print("File", fileName, "saved")
+s.close()
