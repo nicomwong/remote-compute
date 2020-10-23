@@ -19,13 +19,7 @@ if not(0 <= port <= 65535):
 command = input("Enter command: ")
 
 serverAddr = (host, port)
-
-# # FORCED FOR TESTING
 fileName = "client_udp_stdout.txt"
-# host = "localhost"
-# port = 12345
-# # command = "echo hello server aaaaa bbbbb cccccc dddd"
-# command = "date"
 
 serverAddr = (host, port)
 

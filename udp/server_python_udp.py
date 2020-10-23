@@ -70,22 +70,48 @@ while True:
             print("Failed to receive instructions from the client.")
             continue
 
+    # Store command as str
+    cmdStr = cmdFromClient.decode()
+
+    notStdOut = False
+    cmdList = []
+    # Determine if the command format is of 'cmd > file'
+    if '>' in cmdStr:
+        notStdOut = True
+        cmdList = cmdStr.split('>')
+        fileSpecified = cmdList[1][1:]  # File name to the right of '>' w/o the first space
+    
     # Run the command on the shell from server and store the output
     stdout = subprocess.check_output( cmdFromClient.decode(), shell=True )
 
-    # Put the output into a file
+    # Open the server file to write to
     f = open(fileName, "w")
-    f.write( stdout.decode() )
+
+    # If the output is in stdout, then write from stdout
+    if notStdOut == False:
+        f.write( stdout.decode() )
+    # Else, write from the specified file
+    else:
+        fTemp = open(fileSpecified, "r")
+        f.write( fTemp.read() )
+        fTemp.close()
+
+    # Close the file
+    f.close()
+
+    # Read the output from the file
+    f = open(fileName, "r")
+    output = f.read().encode()
     f.close()
 
     # Send the full message length to the client
-    s.sendto(str( len(stdout) ).encode(), addr)
+    s.sendto(str( len(output) ).encode(), addr)
 
     # Track the number of times the message has been sent
     timesSent = 0
 
     # Partition the message into packets of size 1024
-    packetList = messageToPackets(stdout, 8)
+    packetList = messageToPackets(output, 8)
 
     # Repeat for each packet to send
     for packet in packetList:
