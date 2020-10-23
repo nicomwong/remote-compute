@@ -24,7 +24,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)   # AF_INET for ipv4 addres
 fileName = "client_udp_stdout.txt"
 host = "localhost"
 port = 12345
-command = "echo hello server aaaaa bbbbb cccccc dddd"
+# command = "echo hello server aaaaa bbbbb cccccc dddd"
+command = "cat test.txt > abc.txt"
 
 serverAddr = (host, port)
 
@@ -70,8 +71,8 @@ if sentCount >= 4:
     s.close()
     sys.exit()
 
-# Set socket to blocking
-s.setblocking(True)
+# Set socket timeout to 1 second
+s.settimeout(1)
 
 # Wait to receive the expected message length from the server
 data, addr = s.recvfrom(1024)
