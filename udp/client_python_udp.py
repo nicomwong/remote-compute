@@ -77,8 +77,11 @@ data, addr = s.recvfrom(1024)
 expectedLength = int( data.decode() )
 print("Expected length is", expectedLength)
 
+# Store currently received message length
+currLength = 0
+
 # Repeat while there are more packets to be received
-while expectedLength > 0:
+while currLength < expectedLength:
 
     # Set socket timeout to 500 ms
     s.settimeout(0.5)
@@ -105,8 +108,14 @@ while expectedLength > 0:
         print("Sending ACK")
         s.sendto("ACK".encode(), addr)
 
-        # Update the remaining expected length to be received
-        expectedLength -= len(packetFromServer)
+        # Update the currently received length
+        currLength += len(packetFromServer)
+
+# Check if the total received message length is as expected
+if not(currLength == expectedLength):
+    print("Failed to receive command output from server.")
+    print("Expected", expectedLength, "bytes. Received", currLength, "bytes")
+    sys.exit()
 
 # At this point, all packets should have been received and stored, so print success
 print("File", fileName, "saved")
