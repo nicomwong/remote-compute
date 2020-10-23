@@ -7,23 +7,19 @@
 import socket
 import sys
 
+fileName = "client_tcp_stdout.txt"
+
 # Establish a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)   # AF_INET for ipv4 address family, SOCK_STREAM means TCP protocol
 s.settimeout(0.5)   # Set time out for socket to 500 ms
 
-# # Get user input for parameters
-# host = input("Enter sever name or IP address: ")
-# port = int(input("Enter port: "))
-# if not(0 <= port <= 65535):
-#     print("Invalid port number")
+# Get user input for parameters
+host = input("Enter sever name or IP address: ")
+port = int(input("Enter port: "))
+if not(0 <= port <= 65535):
+    print("Invalid port number")
     
-# command = input("Enter command: ")
-
-
-# FORCED FOR TESTING
-host = "localhost"
-port = 12345
-command = "ls"
+command = input("Enter command: ")
 
 # Try connecting to the server
 try:
@@ -40,12 +36,12 @@ s.send( command.encode() )
 dataFromServer = s.recv(1024)
 
 # Store its contents in a file
-f = open("client_tcp_stdout.txt", "w")
+f = open(fileName, "w")
 f.write( dataFromServer.decode() )
 f.close()
 
 # Print file saved
-print("File ", "client_tcp_stdout.txt", " saved")
+print("File ", fileName, " saved")
 
 # Close the connection
 s.close()
