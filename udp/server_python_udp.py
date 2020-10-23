@@ -22,7 +22,7 @@ def messageToPackets(message, packetSize):
     return packetList
 
 # Check for valid cmd line input
-if ( len(sys.argv) != 2):
+if len(sys.argv) != 2:
     print("Usage: python server_python_udp.py <port>")
     sys.exit()
 
@@ -94,7 +94,7 @@ while True:
         while timesSent < 4:
 
             # Send the packet to the client
-            s.sendto(stdout, addr)
+            s.sendto(packet, addr)
 
             # Set timeout to 1 second for ACK to be received
             s.settimeout(1)
