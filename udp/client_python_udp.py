@@ -10,22 +10,22 @@ import sys
 # Establish a socket
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)   # AF_INET for ipv4 address family, SOCK_DGRAM means UDP protocol
 
-# # Get user input for parameters
-# serverAddr = input("Enter sever name or IP address: ")
-# port = int(input("Enter port: "))
-# if not(0 <= port <= 65535):
-#     print("Invalid port number")
+# Get user input for parameters
+host = input("Enter sever name or IP address: ")
+port = int(input("Enter port: "))
+if not(0 <= port <= 65535):
+    print("Invalid port number")
     
-# command = input("Enter command: ")
+command = input("Enter command: ")
 
-# serverAddr = (host, port)
+serverAddr = (host, port)
 
-# FORCED FOR TESTING
+# # FORCED FOR TESTING
 fileName = "client_udp_stdout.txt"
-host = "localhost"
-port = 12345
-# command = "echo hello server aaaaa bbbbb cccccc dddd"
-command = "cat test.txt > abc.txt"
+# host = "localhost"
+# port = 12345
+# # command = "echo hello server aaaaa bbbbb cccccc dddd"
+# command = "date"
 
 serverAddr = (host, port)
 
