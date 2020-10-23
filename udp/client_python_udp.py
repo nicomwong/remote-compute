@@ -32,7 +32,7 @@ serverAddr = (host, port)
 sentCount = 0
 
 # Repeat sending command length and command a maximum of 3 times
-while (sentCount < 3):
+while (sentCount < 4):
 
     # Send the command length to the server
     s.sendto( str( len(command) ).encode(), serverAddr)
@@ -65,7 +65,7 @@ while (sentCount < 3):
             continue
             
 # If timeoutCount reached 3, then print failure and terminate
-if sentCount >= 3:
+if sentCount >= 4:
     print("Failed to send command. Terminating.")
     sys.exit()
 
@@ -88,7 +88,7 @@ while currLength < expectedLength:
     
     # Try to receive the next 1024-byte packet
     try:
-        packetFromServer, addr = s.recvfrom(1024)
+        packetFromServer, addr = s.recvfrom(8)
     # If it times out, print an error and stop
     except socket.timeout:
         print("Failed to receive command output from server")

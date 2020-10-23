@@ -85,13 +85,13 @@ while True:
     timesSent = 0
 
     # Partition the message into packets of size 1024
-    packetList = messageToPackets(stdout, 1024)
+    packetList = messageToPackets(stdout, 8)
 
     # Repeat for each packet to send
     for packet in packetList:
 
         # Repeat sending packet length and message a maximum of 3 times
-        while timesSent < 3:
+        while timesSent < 4:
 
             # Send the packet to the client
             s.sendto(stdout, addr)
@@ -100,8 +100,8 @@ while True:
             s.settimeout(1)
 
             # Print
-            print("Sent packet length and packet to client")
-            
+            print("Sent packet of size", len(packet) )
+        
             # Wait for ACK to be received
             try:
                 ack, addr = s.recvfrom(1024)
@@ -121,6 +121,6 @@ while True:
                     continue
         
         # If timesSent reached 3, print error and ditch this message
-        if timesSent >= 3:
+        if timesSent >= 4:
             print("File transmission failed.")
             continue
