@@ -2,7 +2,7 @@
 You can use these programs to open a local TCP or UDP server and client.
 The client sends a UNIX command to the server which then processes it locally and returns its output.
 Both the client and server store the received/computed output in their respective text files.
-By default, packets are sent in 8 bytes to demonstrate the Application-layer implemented stop & wait acknowledgement (ACK) protocol.
+By default, packets are sent in 8 bytes to demonstrate the Application-layer implemented stop & wait acknowledgement (ACK) protocol but this can be changed in the code.
 
 ## Client-Server Workflow
 1. Client sends the command length and command to the server then waits for the output from the server.
