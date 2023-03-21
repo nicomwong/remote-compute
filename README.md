@@ -4,7 +4,7 @@ The client sends a UNIX command to the server which then processes it locally an
 Both the client and server store the received/computed output in their respective text files.
 By default, packets are sent in 8 bytes to demonstrate the Application-layer implemented stop & wait acknowledgement (ACK) protocol but this can be changed in the code.
 
-## Client-Server Workflow
+## Client-Server Dataflow
 1. Client sends the command length and command to the server then waits for the output from the server.
     If the client does not hear back within 1 second, it ditches the message.
 2. Server receives the command length and command, and then it validates that the length matches
